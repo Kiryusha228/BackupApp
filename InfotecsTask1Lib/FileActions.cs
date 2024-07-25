@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using InfotecsTask1Lib.Enums;
+using System.IO;
 using System.IO.Compression;
 
 namespace InfotecsTask1Lib
@@ -20,11 +21,11 @@ namespace InfotecsTask1Lib
 			_configuration.newDirectoryPath = SetNewDirectoryPath(_configuration.newDirectoryPath);
 			CreateDirectory(_configuration.newDirectoryPath);
 
-			if (_configuration.journalingLevel != Enums.JournalingLevel.None)
+			if (_configuration.journalingLevel != JournalingLevel.None)
 			{
 				_journal = new Journaling(_configuration.newDirectoryPath);
-				_journal.Write("Журнал создан", Enums.JournalingEvent.Debug);
-				_journal.Write($"Началось выполнение резервного копирования", Enums.JournalingEvent.Info);
+				_journal.Write("Журнал создан", JournalingEvent.Debug);
+				_journal.Write($"Началось выполнение резервного копирования", JournalingEvent.Info);
 			}
 
 			CopyDirectories(_configuration.directoryPaths, _configuration.newDirectoryPath);
@@ -35,15 +36,15 @@ namespace InfotecsTask1Lib
 				CreateZip(_configuration.newDirectoryPath);
 			}
 
-			if (_configuration.journalingLevel != Enums.JournalingLevel.None)
+			if (_configuration.journalingLevel != JournalingLevel.None)
 			{
 				if (_journalingError)
 				{
-					_journal.Write($"Резервное копирование не выполнено", Enums.JournalingEvent.Error);
+					_journal.Write($"Резервное копирование не выполнено", JournalingEvent.Error);
 				}
 				else
 				{
-					_journal.Write($"Резервное копирование выполнено", Enums.JournalingEvent.Info);
+					_journal.Write($"Резервное копирование выполнено", JournalingEvent.Info);
 				}
 			}
 		}
@@ -72,25 +73,26 @@ namespace InfotecsTask1Lib
 				}
 				catch (UnauthorizedAccessException)
 				{
-					if (_configuration.journalingLevel != Enums.JournalingLevel.None)
+					if (_configuration.journalingLevel != JournalingLevel.None)
 					{
-						_journal.Write($"Возникла ошибка доступа при создании директории по пути {newDirectoryPath}, резервное копирование остановлено", Enums.JournalingEvent.Error);
+						_journal.Write($"Возникла ошибка доступа при создании директории по пути {newDirectoryPath}, резервное копирование остановлено", JournalingEvent.Error);
 						_journalingError = true;
 					}
 				}
-				catch (Exception)
+				catch (Exception ex)
 				{
-					if (_configuration.journalingLevel != Enums.JournalingLevel.None)
+					if (_configuration.journalingLevel != JournalingLevel.None)
 					{
-						_journal.Write($"Возникла ошибка при создании директории по пути {newDirectoryPath}, резервное копирование остановлено", Enums.JournalingEvent.Error);
+						_journal.Write($"Возникла ошибка при создании директории по пути {newDirectoryPath}, резервное копирование остановлено", JournalingEvent.Error);
+						_journal.Write(ex.Message, JournalingEvent.Error);
 						_journalingError = true;
 					}
 					return;
 				}
 
-				if (_configuration.journalingLevel == Enums.JournalingLevel.High)
+				if (_configuration.journalingLevel == JournalingLevel.High)
 				{
-					_journal.Write($"Создана директория по пути {newDirectoryPath}", Enums.JournalingEvent.Info);
+					_journal.Write($"Создана директория по пути {newDirectoryPath}", JournalingEvent.Info);
 				}
 
 				CopyFiles(path, newDirectoryPath);
@@ -113,26 +115,27 @@ namespace InfotecsTask1Lib
 				}
 				catch (UnauthorizedAccessException)
 				{
-					if (_configuration.journalingLevel != Enums.JournalingLevel.None)
+					if (_configuration.journalingLevel != JournalingLevel.None)
 					{
-						_journal.Write($"Возникла ошибка доступа при создании файла по пути {newFilePath}, резервное копирование остановлено", Enums.JournalingEvent.Error);
+						_journal.Write($"Возникла ошибка доступа при создании файла по пути {newFilePath}, резервное копирование остановлено", JournalingEvent.Error);
 						_journalingError = true;
 					}
 					return;
 				}
-				catch (Exception)
+				catch (Exception ex)
 				{
-					if (_configuration.journalingLevel != Enums.JournalingLevel.None)
+					if (_configuration.journalingLevel != JournalingLevel.None)
 					{
-						_journal.Write($"Возникла ошибка при создании файла по пути {newFilePath}, резервное копирование остановлено", Enums.JournalingEvent.Error);
+						_journal.Write($"Возникла ошибка при создании файла по пути {newFilePath}, резервное копирование остановлено", JournalingEvent.Error);
+						_journal.Write(ex.Message, JournalingEvent.Error);
 						_journalingError = true;
 					}
 					return;
 				}
 
-				if (_configuration.journalingLevel == Enums.JournalingLevel.High)
+				if (_configuration.journalingLevel == JournalingLevel.High)
 				{
-					_journal.Write($"Создан файл по пути {newFilePath}", Enums.JournalingEvent.Info);
+					_journal.Write($"Создан файл по пути {newFilePath}", JournalingEvent.Info);
 				}
 			}
 
@@ -145,13 +148,14 @@ namespace InfotecsTask1Lib
 			{
 				ZipFile.CreateFromDirectory(path, path + ".zip");
 				Directory.Delete(path, true);
-				_journal.Write($"Создан архив {path}.zip", Enums.JournalingEvent.Info);
+				_journal.Write($"Создан архив {path}.zip", JournalingEvent.Info);
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				if (_configuration.journalingLevel != Enums.JournalingLevel.None)
+				if (_configuration.journalingLevel != JournalingLevel.None)
 				{
-					_journal.Write($"Возникла ошибка при создании архива {path}.zip", Enums.JournalingEvent.Info);
+					_journal.Write($"Возникла ошибка при создании архива {path}.zip", JournalingEvent.Info);
+					_journal.Write(ex.Message, JournalingEvent.Error);
 					_journalingError = true;
 				}
 			}

@@ -1,5 +1,4 @@
-﻿
-using static InfotecsTask1Lib.Enums;
+﻿using InfotecsTask1Lib.Enums;
 
 namespace InfotecsTask1Lib
 {

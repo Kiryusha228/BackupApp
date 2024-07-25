@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using static InfotecsTask1Lib.Enums;
+using InfotecsTask1Lib.Enums;
 
 namespace InfotecsTask1Lib
 {
